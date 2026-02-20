@@ -1,0 +1,35 @@
+#!/sbin/openrc-run
+
+name="Xray Daemon"
+description="A unified platform for anti-censorship"
+
+supervisor=supervise-daemon
+respawn_delay=5
+respawn_max=2
+respawn_period=600
+
+pidfile="/run/${RC_SVCNAME}.pid"
+# rc_ulimit="-u 10000 -n 1000000"
+capabilities="^cap_net_bind_service,^cap_net_admin,^cap_net_raw"
+extra_commands="checkconfig"
+
+env=${env:-"XRAY_LOCATION_ASSET=/usr/local/share/xray/"}
+confdir=${confdir:-"/etc/xray/"}
+command="/usr/local/bin/xray"
+command_user="nobody:nobody"
+command_args="run -confdir $confdir"
+required_files="$confdir"
+
+depend() {
+	need net
+}
+
+checkconfig() {
+	export $env
+	su ${command_user%:*} -s /bin/sh -c "$command $command_args -test"
+	eend $?
+}
+
+start_pre() {
+	checkconfig || return 1
+}

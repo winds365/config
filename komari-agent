@@ -1,0 +1,18 @@
+#!/sbin/openrc-run
+
+name="Komari Agent Service"
+description="Komari monitoring agent"
+command="/etc/komari/agent"
+command_args="--config /etc/komari/config.json"
+command_user="root"
+directory="/etc/komari"
+pidfile="/run/komari-agent.pid"
+retry="SIGTERM/30"
+supervisor=supervise-daemon
+output_log="/var/log/komari/access.log"
+error_log="/var/log/komari/error.log"
+export TZ="Asia/Shanghai"
+
+depend() {
+    need net
+}
