@@ -9,7 +9,7 @@ respawn_max=2
 respawn_period=600
 
 pidfile="/run/${RC_SVCNAME}.pid"
-# rc_ulimit="-u 10000 -n 1000000"
+rc_ulimit="-n 1024000 -u 1024000"
 capabilities="^cap_net_bind_service,^cap_net_admin,^cap_net_raw"
 extra_commands="checkconfig"
 
