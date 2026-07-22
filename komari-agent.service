@@ -1,0 +1,21 @@
+[Unit]
+Description=Komari Agent Service
+After=network.target nss-lookup.target
+
+[Service]
+Type=simple
+User=nobody
+
+CapabilityBoundingSet=CAP_NET_RAW
+AmbientCapabilities=CAP_NET_RAW
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/etc/komari
+WorkingDirectory=/etc/komari
+ExecStart=/etc/komari/agent --disable-web-ssh --config /etc/komari/config.json
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

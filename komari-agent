@@ -3,15 +3,20 @@
 name="Komari Agent Service"
 description="Komari monitoring agent"
 command="/etc/komari/agent"
-command_args="--config /etc/komari/config.json"
-command_user="root"
+command_args="--disable-web-ssh --config /etc/komari/config.json"
+command_user="nobody"
 directory="/etc/komari"
 pidfile="/run/komari-agent.pid"
 retry="SIGTERM/30"
 supervisor=supervise-daemon
+capabilities="^cap_net_raw"
 output_log="/var/log/komari/access.log"
 error_log="/var/log/komari/error.log"
 
 depend() {
     need net
+}
+
+start_pre() {
+    chown -R nobody:nobody /etc/komari
 }
