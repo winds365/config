@@ -1,22 +1,32 @@
 #!/sbin/openrc-run
 
-name="Komari Agent Service"
+name="komari-agent"
 description="Komari monitoring agent"
+
 command="/etc/komari/agent"
 command_args="--disable-web-ssh --config /etc/komari/config.json"
-command_user="nobody"
+
+command_user="nobody:nobody"
 directory="/etc/komari"
-pidfile="/run/komari-agent.pid"
-retry="SIGTERM/30"
+
 supervisor=supervise-daemon
+retry="SIGTERM/30"
+
 capabilities="^cap_net_raw"
+
 output_log="/var/log/komari/access.log"
 error_log="/var/log/komari/error.log"
+
+umask="027"
 
 depend() {
     need net
 }
 
 start_pre() {
-    chown -R nobody:nobody /etc/komari
+    checkpath --directory --owner nobody:nobody --mode 0755 /var/log/komari
+
+    if [ "$(stat -c '%U:%G' /etc/komari)" != "nobody:nobody" ]; then
+        chown -R nobody:nobody /etc/komari
+    fi
 }

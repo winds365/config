@@ -5,31 +5,31 @@ description="A unified platform for anti-censorship"
 
 supervisor=supervise-daemon
 respawn_delay=5
-respawn_max=2
+respawn_max=5
 respawn_period=600
 
-pidfile="/run/${RC_SVCNAME}.pid"
-rc_ulimit="-n 1024000 -u 1024000"
-capabilities="^cap_net_bind_service,^cap_net_admin,^cap_net_raw"
-extra_commands="checkconfig"
-
 env=${env:-"XRAY_LOCATION_ASSET=/usr/local/share/xray/"}
-confdir=${confdir:-"/etc/xray/"}
 command="/usr/local/bin/xray"
 command_user="nobody:nobody"
-command_args="run -confdir $confdir"
-required_files="$confdir"
+command_args="run -confdir /etc/xray"
+
+rc_ulimit="-n 65535"
+capabilities="^cap_net_bind_service,^cap_net_admin,^cap_net_raw"
+umask="027"
+extra_commands="checkconfig"
 
 depend() {
 	need net
 }
 
-checkconfig() {
-	export $env
-	su ${command_user%:*} -s /bin/sh -c "$command $command_args -test"
-	eend $?
+start_pre() {
+    checkpath --directory --owner nobody:nobody --mode 0755 /var/log/xray
+    checkconfig || return 1
 }
 
-start_pre() {
-	checkconfig || return 1
+checkconfig() {
+    ebegin "Checking Xray configuration"
+    export XRAY_LOCATION_ASSET="/usr/local/share/xray"
+	su ${command_user%:*} -s /bin/sh -c "$command $command_args -test"
+	eend $?
 }
